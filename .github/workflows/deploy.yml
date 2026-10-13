@@ -13,4 +13,4 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GENERATE_AI }}
           channelId: live
-          projectId: generate-ai
+          projectId: auto-generate-ai
