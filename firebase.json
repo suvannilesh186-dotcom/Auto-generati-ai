@@ -1,4 +1,13 @@
 {
+  "targets": {
+    "generate-ai": {
+      "hosting": {
+        "site": [
+          "generate-ai"
+        ]
+      }
+    }
+  },
   "hosting": {
     "public": ".",
     "ignore": [
