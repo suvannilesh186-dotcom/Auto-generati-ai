@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { CONFIG } from './config.js';
 
 const firebaseConfig = {
@@ -44,32 +44,39 @@ async function fetchYouTubeChannel(accessToken) {
     }
 }
 
-async function handleLogin(e) {
-    if (e) e.preventDefault();
-    try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        if (credential) {
-            const accessToken = credential.accessToken;
-            localStorage.setItem('agc_access_token', accessToken);
-            await fetchYouTubeChannel(accessToken);
-            window.location.href = 'dashboard.html';
-        }
-    } catch (error) {
-        console.error("Login Error:", error);
-        showError(error.message);
-    }
-}
-
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
     const savedToken = localStorage.getItem('agc_access_token');
     if (savedToken) {
         fetchYouTubeChannel(savedToken);
     }
 
+    try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            if (credential) {
+                const accessToken = credential.accessToken;
+                localStorage.setItem('agc_access_token', accessToken);
+                await fetchYouTubeChannel(accessToken);
+                window.location.href = 'dashboard.html';
+            }
+        }
+    } catch (error) {
+        console.error("Redirect Login Error:", error);
+        showError(error.message);
+    }
+
     const loginBtn = document.getElementById('google-login-btn');
     if (loginBtn) {
-        loginBtn.addEventListener('click', handleLogin);
+        loginBtn.addEventListener('click', async (e) => {
+            if (e) e.preventDefault();
+            try {
+                await signInWithRedirect(auth, googleProvider);
+            } catch (error) {
+                console.error("Login Error:", error);
+                showError(error.message);
+            }
+        });
         console.log("Login button successfully attached.");
     } else {
         console.error("Login button with id 'google-login-btn' not found in HTML.");
