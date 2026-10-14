@@ -44,6 +44,17 @@ async function fetchYouTubeChannel(accessToken) {
     }
 }
 
+async function handleLogin(e) {
+    if (e) e.preventDefault();
+    alert("Login button clicked!"); 
+    try {
+        await signInWithRedirect(auth, googleProvider);
+    } catch (error) {
+        console.error("Login Error:", error);
+        showError(error.message);
+    }
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
     const savedToken = localStorage.getItem('agc_access_token');
     if (savedToken) {
@@ -68,15 +79,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     const loginBtn = document.getElementById('google-login-btn');
     if (loginBtn) {
-        loginBtn.addEventListener('click', async (e) => {
-            if (e) e.preventDefault();
-            try {
-                await signInWithRedirect(auth, googleProvider);
-            } catch (error) {
-                console.error("Login Error:", error);
-                showError(error.message);
-            }
-        });
+        loginBtn.addEventListener('click', handleLogin);
         console.log("Login button successfully attached.");
     } else {
         console.error("Login button with id 'google-login-btn' not found in HTML.");
