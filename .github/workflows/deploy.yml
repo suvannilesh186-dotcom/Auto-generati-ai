@@ -12,7 +12,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Deploy to Firebase Hosting
-        run: npx firebase-tools deploy --only hosting --project auto-generate-ai
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GENERATE_AI }}
+      - name: Authenticate and Deploy
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_GENERATE_AI }}'
+          channelId: live
+          projectId: auto-generate-ai
