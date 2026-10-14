@@ -15,3 +15,5 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_GENERATE_AI }}'
           channelId: live
           projectId: auto-generate-ai
+
+
