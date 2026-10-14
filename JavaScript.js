@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { CONFIG } from './config.js';
 
 const firebaseConfig = {
@@ -44,13 +44,20 @@ async function fetchYouTubeChannel(accessToken) {
     }
 }
 
-// डायरेक्ट क्लिक फंक्शन जो HTML बटन से कॉल होगा
+// पॉप-अप लॉगिन फंक्शन जो HTML बटन से कॉल होगा
 window.handleLoginDirect = async function() {
-    alert("Direct click working!");
+    alert("Popup login initiated!");
     try {
-        await signInWithRedirect(auth, googleProvider);
+        const result = await signInWithPopup(auth, googleProvider);
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        if (credential) {
+            const accessToken = credential.accessToken;
+            localStorage.setItem('agc_access_token', accessToken);
+            await fetchYouTubeChannel(accessToken);
+            window.location.href = 'dashboard.html';
+        }
     } catch (error) {
-        console.error("Login Error:", error);
+        console.error("Popup Login Error:", error);
         showError(error.message);
     }
 };
@@ -59,21 +66,5 @@ window.addEventListener('DOMContentLoaded', async () => {
     const savedToken = localStorage.getItem('agc_access_token');
     if (savedToken) {
         fetchYouTubeChannel(savedToken);
-    }
-
-    try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-            const credential = GoogleAuthProvider.credentialFromResult(result);
-            if (credential) {
-                const accessToken = credential.accessToken;
-                localStorage.setItem('agc_access_token', accessToken);
-                await fetchYouTubeChannel(accessToken);
-                window.location.href = 'dashboard.html';
-            }
-        }
-    } catch (error) {
-        console.error("Redirect Login Error:", error);
-        showError(error.message);
     }
 });
