@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { CONFIG } from './config.js';
 
 const firebaseConfig = {
@@ -44,9 +44,8 @@ async function fetchYouTubeChannel(accessToken) {
     }
 }
 
-// पॉप-अप लॉगिन फंक्शन जो HTML बटन से कॉल होगा
+// स्मार्ट लॉगिन फंक्शन: पहले पॉप-अप ट्राई करेगा, ब्लॉक होने पर रीडायरेक्ट करेगा
 window.handleLoginDirect = async function() {
-    alert("Popup login initiated!");
     try {
         const result = await signInWithPopup(auth, googleProvider);
         const credential = GoogleAuthProvider.credentialFromResult(result);
@@ -57,8 +56,13 @@ window.handleLoginDirect = async function() {
             window.location.href = 'dashboard.html';
         }
     } catch (error) {
-        console.error("Popup Login Error:", error);
-        showError(error.message);
+        console.warn("Popup blocked or failed, switching to Redirect method:", error);
+        try {
+            await signInWithRedirect(auth, googleProvider);
+        } catch (redirectError) {
+            console.error("Redirect Login Error:", redirectError);
+            showError(redirectError.message);
+        }
     }
 };
 
@@ -66,5 +70,21 @@ window.addEventListener('DOMContentLoaded', async () => {
     const savedToken = localStorage.getItem('agc_access_token');
     if (savedToken) {
         fetchYouTubeChannel(savedToken);
+    }
+
+    try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            if (credential) {
+                const accessToken = credential.accessToken;
+                localStorage.setItem('agc_access_token', accessToken);
+                await fetchYouTubeChannel(accessToken);
+                window.location.href = 'dashboard.html';
+            }
+        }
+    } catch (error) {
+        console.error("Redirect Result Error:", error);
+        showError(error.message);
     }
 });
