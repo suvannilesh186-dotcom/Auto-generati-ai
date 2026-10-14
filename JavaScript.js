@@ -44,16 +44,16 @@ async function fetchYouTubeChannel(accessToken) {
     }
 }
 
-async function handleLogin(e) {
-    if (e) e.preventDefault();
-    alert("Login button clicked!"); 
+// डायरेक्ट क्लिक फंक्शन जो HTML बटन से कॉल होगा
+window.handleLoginDirect = async function() {
+    alert("Direct click working!");
     try {
         await signInWithRedirect(auth, googleProvider);
     } catch (error) {
         console.error("Login Error:", error);
         showError(error.message);
     }
-}
+};
 
 window.addEventListener('DOMContentLoaded', async () => {
     const savedToken = localStorage.getItem('agc_access_token');
@@ -75,13 +75,5 @@ window.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
         console.error("Redirect Login Error:", error);
         showError(error.message);
-    }
-
-    const loginBtn = document.getElementById('google-login-btn');
-    if (loginBtn) {
-        loginBtn.addEventListener('click', handleLogin);
-        console.log("Login button successfully attached.");
-    } else {
-        console.error("Login button with id 'google-login-btn' not found in HTML.");
     }
 });
