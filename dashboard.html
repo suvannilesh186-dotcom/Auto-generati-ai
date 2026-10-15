@@ -1,10 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGC.AI - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- Top Header -->
+    <header class="top-header">
+        <button class="menu-toggle-btn" onclick="toggleSidebar()">☰</button>
+        <div class="header-logo">AGC.AI Dashboard</div>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="profile-box">
+                <img id="channel-logo" src="https://via.placeholder.com/50" alt="Channel Logo" class="profile-logo">
+                <div class="profile-info">
+                    <h4 id="channel-name">Loading Channel...</h4>
+                    <span id="user-email">user@gmail.com</span>
+                </div>
+            </div>
+
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active">🏠 Home</a>
+                <a href="#" class="menu-item">📊 Analytics</a>
+                <a href="#" class="menu-item">⚙️ Settings</a>
+            </div>
+
+            <div class="sidebar-bottom">
+                <button class="switch-channel-btn" onclick="switchChannel()">🔄 Switch Channel</button>
+                <button class="logout-btn" onclick="handleLogout()">🚪 Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <h1>Welcome to AGC.AI!</h1>
+            <p>यहाँ आपका मुख्य डैशबोर्ड कंटेंट दिखाई देगा।</p>
+        </main>
+    </div>
+
     <!-- Firebase & Dashboard Logic Script -->
     <script type="module">
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const auth = getAuth();
 
-        // Check user login state and fetch details
+        // Check user login state
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('user-email').innerText = user.email || "Connected User";
@@ -19,28 +65,28 @@
             }
         });
 
-        // Sidebar Toggle Direct Binding
-        const menuToggleBtn = document.getElementById('menuToggleBtn');
-        const sidebar = document.getElementById('sidebar');
-
-        if (menuToggleBtn && sidebar) {
-            menuToggleBtn.addEventListener('click', () => {
+        // Sidebar Toggle Function
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
                 sidebar.classList.toggle('active');
-            });
+            }
         }
 
-        // Switch Channel Functionality
-        document.getElementById('switchChannelBtn').addEventListener('click', () => {
+        // Switch Channel Function
+        window.switchChannel = function() {
             alert("Switch channel option clicked.");
-        });
+        }
 
-        // Logout Functionality
-        document.getElementById('logoutBtn').addEventListener('click', () => {
+        // Logout Function
+        window.handleLogout = function() {
             signOut(auth).then(() => {
                 localStorage.removeItem('agc_access_token');
                 window.location.href = 'index.html';
             }).catch((error) => {
                 alert("Logout Error: " + error.message);
             });
-        });
+        }
     </script>
+</body>
+</html>
