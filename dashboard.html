@@ -19,30 +19,28 @@
             }
         });
 
-        // Sidebar Toggle Fix using DOMContentLoaded
-        document.addEventListener("DOMContentLoaded", () => {
-            const menuToggleBtn = document.getElementById('menuToggleBtn');
-            const sidebar = document.getElementById('sidebar');
+        // Sidebar Toggle Direct Binding
+        const menuToggleBtn = document.getElementById('menuToggleBtn');
+        const sidebar = document.getElementById('sidebar');
 
-            if (menuToggleBtn && sidebar) {
-                menuToggleBtn.addEventListener('click', () => {
-                    sidebar.classList.toggle('active');
-                });
-            }
-        });
-
-        // Switch Channel Functionality
-        window.switchChannel = function() {
-            alert("Switch channel option clicked.");
+        if (menuToggleBtn && sidebar) {
+            menuToggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
         }
 
+        // Switch Channel Functionality
+        document.getElementById('switchChannelBtn').addEventListener('click', () => {
+            alert("Switch channel option clicked.");
+        });
+
         // Logout Functionality
-        window.handleLogout = function() {
+        document.getElementById('logoutBtn').addEventListener('click', () => {
             signOut(auth).then(() => {
                 localStorage.removeItem('agc_access_token');
                 window.location.href = 'index.html';
             }).catch((error) => {
                 alert("Logout Error: " + error.message);
             });
-        }
+        });
     </script>
