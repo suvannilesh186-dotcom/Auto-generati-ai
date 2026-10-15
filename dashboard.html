@@ -10,7 +10,7 @@
 
     <!-- Top Header -->
     <header class="top-header">
-        <button class="menu-toggle-btn" onclick="toggleSidebar()">☰</button>
+        <button class="menu-toggle-btn" id="menuToggleBtn">☰</button>
         <div class="header-logo">AGC.AI Dashboard</div>
     </header>
 
@@ -32,8 +32,8 @@
             </div>
 
             <div class="sidebar-bottom">
-                <button class="switch-channel-btn" onclick="switchChannel()">🔄 Switch Channel</button>
-                <button class="logout-btn" onclick="handleLogout()">🚪 Logout</button>
+                <button class="switch-channel-btn" id="switchChannelBtn">🔄 Switch Channel</button>
+                <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
             </div>
         </aside>
 
@@ -65,28 +65,30 @@
             }
         });
 
-        // Sidebar Toggle Function
-        window.toggleSidebar = function() {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar) {
+        // Sidebar Toggle Event Listener
+        const menuToggleBtn = document.getElementById('menuToggleBtn');
+        const sidebar = document.getElementById('sidebar');
+
+        if (menuToggleBtn && sidebar) {
+            menuToggleBtn.addEventListener('click', () => {
                 sidebar.classList.toggle('active');
-            }
+            });
         }
 
-        // Switch Channel Function
-        window.switchChannel = function() {
+        // Switch Channel Functionality
+        document.getElementById('switchChannelBtn').addEventListener('click', () => {
             alert("Switch channel option clicked.");
-        }
+        });
 
-        // Logout Function
-        window.handleLogout = function() {
+        // Logout Functionality
+        document.getElementById('logoutBtn').addEventListener('click', () => {
             signOut(auth).then(() => {
                 localStorage.removeItem('agc_access_token');
                 window.location.href = 'index.html';
             }).catch((error) => {
                 alert("Logout Error: " + error.message);
             });
-        }
+        });
     </script>
 </body>
 </html>
