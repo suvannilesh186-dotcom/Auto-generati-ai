@@ -1,53 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AGC.AI - Dashboard</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="dashboard-body">
-
-    <!-- Top Header (Top Hammer / Navbar) -->
-    <header class="top-header">
-        <!-- onclick हटाकर यहाँ ID दी गई है ताकि JS से कंट्रोल हो सके -->
-        <button class="menu-toggle-btn" id="menuToggleBtn">☰</button>
-        <div class="header-logo">AGC.AI Dashboard</div>
-    </header>
-
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <!-- User Profile Box at the Top -->
-            <div class="profile-box">
-                <img id="channel-logo" src="https://via.placeholder.com/50" alt="Channel Logo" class="profile-logo">
-                <div class="profile-info">
-                    <h4 id="channel-name">Loading Channel...</h4>
-                    <span id="user-email">user@gmail.com</span>
-                </div>
-            </div>
-
-            <!-- Navigation Links / Options -->
-            <div class="sidebar-menu">
-                <a href="#" class="menu-item active">🏠 Home</a>
-                <a href="#" class="menu-item">📊 Analytics</a>
-                <a href="#" class="menu-item">⚙️ Settings</a>
-            </div>
-
-            <!-- Bottom Section: Switch Channel & Logout -->
-            <div class="sidebar-bottom">
-                <button class="switch-channel-btn" id="switchChannelBtn">🔄 Switch Channel</button>
-                <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
-            </div>
-        </aside>
-
-        <!-- Main Content Area -->
-        <main class="main-content">
-            <h1>Welcome to AGC.AI!</h1>
-            <p>यहाँ आपका मुख्य डैशबोर्ड कंटेंट दिखाई देगा।</p>
-        </main>
-    </div>
-
     <!-- Firebase & Dashboard Logic Script -->
     <script type="module">
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -69,30 +19,30 @@
             }
         });
 
-        // Sidebar Toggle Logic (Event Listener)
-        const menuToggleBtn = document.getElementById('menuToggleBtn');
-        const sidebar = document.getElementById('sidebar');
+        // Sidebar Toggle Fix using DOMContentLoaded
+        document.addEventListener("DOMContentLoaded", () => {
+            const menuToggleBtn = document.getElementById('menuToggleBtn');
+            const sidebar = document.getElementById('sidebar');
 
-        if (menuToggleBtn && sidebar) {
-            menuToggleBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('active');
-            });
-        }
-
-        // Switch Channel Functionality
-        document.getElementById('switchChannelBtn').addEventListener('click', () => {
-            alert("Switch channel option clicked.");
+            if (menuToggleBtn && sidebar) {
+                menuToggleBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            }
         });
 
+        // Switch Channel Functionality
+        window.switchChannel = function() {
+            alert("Switch channel option clicked.");
+        }
+
         // Logout Functionality
-        document.getElementById('logoutBtn').addEventListener('click', () => {
+        window.handleLogout = function() {
             signOut(auth).then(() => {
                 localStorage.removeItem('agc_access_token');
                 window.location.href = 'index.html';
             }).catch((error) => {
                 alert("Logout Error: " + error.message);
             });
-        });
+        }
     </script>
-</body>
-</html>
