@@ -1,8 +1,23 @@
     <!-- Firebase & Dashboard Logic Script -->
     <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { CONFIG } from './config.js';
 
-        const auth = getAuth();
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: CONFIG.firebaseApiKey,
+            authDomain: CONFIG.authDomain,
+            projectId: CONFIG.projectId,
+            storageBucket: CONFIG.storageBucket,
+            messagingSenderId: CONFIG.messagingSenderId,
+            appId: CONFIG.appId,
+            measurementId: CONFIG.measurementId
+        };
+
+        // Initialize Firebase safely
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
 
         // Check user login state
         onAuthStateChanged(auth, (user) => {
@@ -19,17 +34,14 @@
             }
         });
 
-        // Sidebar Toggle with Alert Test
+        // Sidebar Toggle Event Listener
         const menuToggleBtn = document.getElementById('menuToggleBtn');
         const sidebar = document.getElementById('sidebar');
 
         if (menuToggleBtn && sidebar) {
             menuToggleBtn.addEventListener('click', () => {
-                alert("Hammer button clicked!"); // यह देखने के लिए कि क्लिक काम कर रहा है या नहीं
                 sidebar.classList.toggle('active');
             });
-        } else {
-            console.error("Button or Sidebar not found!");
         }
 
         // Switch Channel Functionality
