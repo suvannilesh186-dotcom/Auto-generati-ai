@@ -57,7 +57,6 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('user-email').innerText = user.email || "Connected User";
-                // अगर गूगल से नाम और फोटो मिला है तो सेट करें
                 if(user.displayName) {
                     document.getElementById('channel-name').innerText = user.displayName;
                 }
@@ -65,20 +64,21 @@
                     document.getElementById('channel-logo').src = user.photoURL;
                 }
             } else {
-                // अगर लॉग इन नहीं है तो इंडेक्स पेज पर भेजें
                 window.location.href = 'index.html';
             }
         });
 
-        // Toggle Sidebar for Mobile View
+        // Toggle Sidebar for Mobile View (Global scope fix)
         window.toggleSidebar = function() {
             const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
+            if (sidebar) {
+                sidebar.classList.toggle('active');
+            }
         }
 
         // Switch Channel Functionality
         window.switchChannel = function() {
-            alert("Switch channel option clicked. (यहाँ आप अकाउंट री-सेलेक्ट करने का कोड लगा सकते हैं)");
+            alert("Switch channel option clicked.");
         }
 
         // Logout Functionality
