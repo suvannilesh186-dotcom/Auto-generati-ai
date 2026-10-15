@@ -10,7 +10,8 @@
 
     <!-- Top Header (Top Hammer / Navbar) -->
     <header class="top-header">
-        <button class="menu-toggle-btn" onclick="toggleSidebar()">☰</button>
+        <!-- onclick हटाकर यहाँ ID दी गई है ताकि JS से कंट्रोल हो सके -->
+        <button class="menu-toggle-btn" id="menuToggleBtn">☰</button>
         <div class="header-logo">AGC.AI Dashboard</div>
     </header>
 
@@ -35,8 +36,8 @@
 
             <!-- Bottom Section: Switch Channel & Logout -->
             <div class="sidebar-bottom">
-                <button class="switch-channel-btn" onclick="switchChannel()">🔄 Switch Channel</button>
-                <button class="logout-btn" onclick="handleLogout()">🚪 Logout</button>
+                <button class="switch-channel-btn" id="switchChannelBtn">🔄 Switch Channel</button>
+                <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
             </div>
         </aside>
 
@@ -68,28 +69,30 @@
             }
         });
 
-        // Toggle Sidebar for Mobile View (Global scope fix)
-        window.toggleSidebar = function() {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar) {
+        // Sidebar Toggle Logic (Event Listener)
+        const menuToggleBtn = document.getElementById('menuToggleBtn');
+        const sidebar = document.getElementById('sidebar');
+
+        if (menuToggleBtn && sidebar) {
+            menuToggleBtn.addEventListener('click', () => {
                 sidebar.classList.toggle('active');
-            }
+            });
         }
 
         // Switch Channel Functionality
-        window.switchChannel = function() {
+        document.getElementById('switchChannelBtn').addEventListener('click', () => {
             alert("Switch channel option clicked.");
-        }
+        });
 
         // Logout Functionality
-        window.handleLogout = function() {
+        document.getElementById('logoutBtn').addEventListener('click', () => {
             signOut(auth).then(() => {
                 localStorage.removeItem('agc_access_token');
                 window.location.href = 'index.html';
             }).catch((error) => {
                 alert("Logout Error: " + error.message);
             });
-        }
+        });
     </script>
 </body>
 </html>
