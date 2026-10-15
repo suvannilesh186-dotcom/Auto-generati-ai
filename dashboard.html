@@ -25,8 +25,6 @@
                 </div>
             </div>
 
-            <!-- Home, Analytics, Settings options removed as requested -->
-
             <div class="sidebar-bottom">
                 <button class="switch-channel-btn" id="switchChannelBtn">🔄 Switch Channel</button>
                 <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
@@ -37,13 +35,25 @@
         <main class="main-content">
             <h1>Welcome to AGC.AI!</h1>
             <p>यहाँ आपका मुख्य डैशबोर्ड कंटेंट दिखाई देगा।</p>
+
+            <!-- AI Chat Box Section -->
+            <div class="ai-chat-section">
+                <div class="chat-header">🤖 AGC.AI Assistant</div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai-message">नमस्ते! मैं आपकी AI मदद के लिए तैयार हूँ। बताइए आज क्या करना है?</div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="यहाँ अपना मैसेज टाइप करें..." />
+                    <button id="sendChatBtn">🚀 Send</button>
+                </div>
+            </div>
         </main>
     </div>
 
     <!-- Firebase & Dashboard Logic Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { CONFIG } from './config.js';
 
         let auth;
@@ -102,13 +112,14 @@
             });
         }
 
-        // Switch Channel Logic (Google account re-popup to switch/select different account or channel)
+        // Switch Channel Logic
         const switchBtn = document.getElementById('switchChannelBtn');
         if (switchBtn) {
             switchBtn.addEventListener('click', async () => {
                 try {
                     const provider = new GoogleAuthProvider();
                     provider.setCustomParameters({ prompt: 'select_account' });
+                    
                     const result = await signInWithPopup(auth, provider);
                     const credential = GoogleAuthProvider.credentialFromResult(result);
                     if (credential && credential.accessToken) {
@@ -116,7 +127,49 @@
                         window.location.reload();
                     }
                 } catch (error) {
-                    console.error("Switch Channel Error:", error);
+                    console.warn("Popup failed, trying redirect...", error);
+                    try {
+                        const provider = new GoogleAuthProvider();
+                        provider.setCustomParameters({ prompt: 'select_account' });
+                        await signInWithRedirect(auth, provider);
+                    } catch (redirectError) {
+                        console.error("Switch Channel Redirect Error:", redirectError);
+                    }
+                }
+            });
+        }
+
+        // AI Chat Box Logic
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendChatBtn = document.getElementById('sendChatBtn');
+
+        if (sendChatBtn && chatInput) {
+            const handleSendMessage = () => {
+                const text = chatInput.value.trim();
+                if (!text) return;
+
+                const userMsg = document.createElement('div');
+                userMsg.className = 'message user-message';
+                userMsg.innerText = text;
+                chatMessages.appendChild(userMsg);
+
+                chatInput.value = '';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                setTimeout(() => {
+                    const aiMsg = document.createElement('div');
+                    aiMsg.className = 'message ai-message';
+                    aiMsg.innerText = "मैंने आपका सवाल सुन लिया है। जल्द ही इसे AI API से कनेक्ट किया जाएगा!";
+                    chatMessages.appendChild(aiMsg);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
+            };
+
+            sendChatBtn.addEventListener('click', handleSendMessage);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleSendMessage();
                 }
             });
         }

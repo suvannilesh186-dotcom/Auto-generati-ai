@@ -1,4 +1,4 @@
-// Firebase & Dashboard Logic Script (Pure JavaScript)
+// Firebase & Dashboard Logic Script (Including AI Chat Box)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { CONFIG } from './config.js';
@@ -61,7 +61,7 @@ if (menuToggleBtn && sidebar) {
     });
 }
 
-// स्विच चैनल लॉजिक (अकाउंट/चैनल सेलेक्टर प्रॉम्प्ट के साथ)
+// स्विच चैनल लॉजिक
 const switchBtn = document.getElementById('switchChannelBtn');
 if (switchBtn) {
     switchBtn.addEventListener('click', async () => {
@@ -84,6 +84,43 @@ if (switchBtn) {
             } catch (redirectError) {
                 console.error("Switch Channel Redirect Error:", redirectError);
             }
+        }
+    });
+}
+
+// AI Chat Box Logic
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const sendChatBtn = document.getElementById('sendChatBtn');
+
+if (sendChatBtn && chatInput) {
+    const handleSendMessage = () => {
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        // यूजर का मैसेज स्क्रीन पर जोड़ें
+        const userMsg = document.createElement('div');
+        userMsg.className = 'message user-message';
+        userMsg.innerText = text;
+        chatMessages.appendChild(userMsg);
+
+        chatInput.value = '';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // अस्थायी एआई रिप्लाई (यहाँ आप अपनी OpenAI या AI API जोड़ सकते हैं)
+        setTimeout(() => {
+            const aiMsg = document.createElement('div');
+            aiMsg.className = 'message ai-message';
+            aiMsg.innerText = "मैंने आपका सवाल सुन लिया है। जल्द ही इसे AI API से कनेक्ट किया जाएगा!";
+            chatMessages.appendChild(aiMsg);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 1000);
+    };
+
+    sendChatBtn.addEventListener('click', handleSendMessage);
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleSendMessage();
         }
     });
 }
