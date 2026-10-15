@@ -1,4 +1,4 @@
-// 1. सबसे पहले यह चेक करने के लिए कि जावास्क्रिप्ट फाइल लोड हो रही है या नहीं
+// 1. सबसे पहले यह चेक करने के लिए कि जावास्क्रिप्ट लोड हो रही है या नहीं
 alert("JS File Loaded Successfully!");
 
 // 2. Firebase और कॉन्फ़िगरेशन इम्पोर्ट करना
@@ -31,25 +31,28 @@ try {
 }
 
 // 5. जब यूजर 'Sign in with Google' बटन पर क्लिक करेगा, तब यह फंक्शन चलेगा
-window.handleLoginDirect = async function() {
-    alert("Button Clicked & Working!");
-    try {
-        // पहले पॉप-अप से लॉगिन की कोशिश करेगा
-        const result = await signInWithPopup(auth, googleProvider);
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        if (credential) {
-            const accessToken = credential.accessToken;
-            localStorage.setItem('agc_access_token', accessToken);
-            window.location.href = 'dashboard.html';
-        }
-    } catch (error) {
-        console.warn("Popup failed, trying redirect...", error);
+const loginBtn = document.getElementById('loginBtn');
+if (loginBtn) {
+    loginBtn.addEventListener('click', async () => {
+        alert("Button Clicked & Working!");
         try {
-            // अगर पॉप-अप ब्लॉक हुआ, तो ऑटोमैटिक रीडायरेक्ट मेथड चल जाएगा
-            await signInWithRedirect(auth, googleProvider);
-        } catch (redirectError) {
-            console.error("Redirect Login Error:", redirectError);
-            alert("Login Failed: " + redirectError.message);
+            // पहले पॉप-अप से लॉगिन की कोशिश करेगा
+            const result = await signInWithPopup(auth, googleProvider);
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            if (credential) {
+                const accessToken = credential.accessToken;
+                localStorage.setItem('agc_access_token', accessToken);
+                window.location.href = 'dashboard.html';
+            }
+        } catch (error) {
+            console.warn("Popup failed, trying redirect...", error);
+            try {
+                // अगर पॉप-अप ब्लॉक हुआ, तो ऑटोमैटिक रीडायरेक्ट मेथड चल जाएगा
+                await signInWithRedirect(auth, googleProvider);
+            } catch (redirectError) {
+                console.error("Redirect Login Error:", redirectError);
+                alert("Login Failed: " + redirectError.message);
+            }
         }
-    }
-};
+    });
+}
