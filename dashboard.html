@@ -6,18 +6,83 @@
     <title>AGC.AI - Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body style="font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f9; padding: 50px;">
-    <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); display: inline-block;">
-        <h1 style="color: #333;">Welcome to AGC.AI Dashboard!</h1>
-        <p style="color: #666;">You have successfully logged in with your Google Account.</p>
-        <button onclick="handleLogout()" style="padding: 10px 20px; background: #ff4d4d; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 20px;">Logout</button>
+<body class="dashboard-body">
+
+    <!-- Top Header (Top Hammer / Navbar) -->
+    <header class="top-header">
+        <button class="menu-toggle-btn" onclick="toggleSidebar()">☰</button>
+        <div class="header-logo">AGC.AI Dashboard</div>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <!-- User Profile Box at the Top -->
+            <div class="profile-box">
+                <img id="channel-logo" src="https://via.placeholder.com/50" alt="Channel Logo" class="profile-logo">
+                <div class="profile-info">
+                    <h4 id="channel-name">Loading Channel...</h4>
+                    <span id="user-email">user@gmail.com</span>
+                </div>
+            </div>
+
+            <!-- Navigation Links / Options -->
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active">🏠 Home</a>
+                <a href="#" class="menu-item">📊 Analytics</a>
+                <a href="#" class="menu-item">⚙️ Settings</a>
+            </div>
+
+            <!-- Bottom Section: Switch Channel & Logout -->
+            <div class="sidebar-bottom">
+                <button class="switch-channel-btn" onclick="switchChannel()">🔄 Switch Channel</button>
+                <button class="logout-btn" onclick="handleLogout()">🚪 Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <h1>Welcome to AGC.AI!</h1>
+            <p>यहाँ आपका मुख्य डैशबोर्ड कंटेंट दिखाई देगा।</p>
+        </main>
     </div>
 
+    <!-- Firebase & Dashboard Logic Script -->
     <script type="module">
-        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const auth = getAuth();
+
+        // Check user login state and fetch details
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('user-email').innerText = user.email || "Connected User";
+                // अगर गूगल से नाम और फोटो मिला है तो सेट करें
+                if(user.displayName) {
+                    document.getElementById('channel-name').innerText = user.displayName;
+                }
+                if(user.photoURL) {
+                    document.getElementById('channel-logo').src = user.photoURL;
+                }
+            } else {
+                // अगर लॉग इन नहीं है तो इंडेक्स पेज पर भेजें
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Toggle Sidebar for Mobile View
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Switch Channel Functionality
+        window.switchChannel = function() {
+            alert("Switch channel option clicked. (यहाँ आप अकाउंट री-सेलेक्ट करने का कोड लगा सकते हैं)");
+        }
+
+        // Logout Functionality
         window.handleLogout = function() {
-            const auth = getAuth();
             signOut(auth).then(() => {
                 localStorage.removeItem('agc_access_token');
                 window.location.href = 'index.html';
