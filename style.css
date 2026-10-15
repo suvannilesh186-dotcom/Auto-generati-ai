@@ -1,10 +1,90 @@
-/* Base Reset & Cyber Theme Styling */
+/* ==========================================
+   AGC.AI - Complete Theme CSS (Dashboard & Login)
+   ========================================== */
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+/* --- Login Page Styles --- */
+body.login-body {
+    background: radial-gradient(circle at center, #111a2e 0%, #07090e 80%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #e6edf3;
+}
+
+.login-card {
+    background: rgba(13, 17, 23, 0.9);
+    border: 1px solid #30363d;
+    padding: 35px 25px;
+    border-radius: 16px;
+    text-align: center;
+    width: 90%;
+    max-width: 380px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+}
+
+.login-logo {
+    font-size: 26px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+}
+
+.login-logo span {
+    color: #58a6ff;
+}
+
+.login-subtitle {
+    font-size: 13px;
+    color: #8b949e;
+    margin-bottom: 25px;
+    line-height: 1.4;
+}
+
+.google-signin-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #30363d;
+    background: #161b22;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+}
+
+.google-signin-btn:hover {
+    background: #21262d;
+    border-color: #58a6ff;
+}
+
+.login-footer {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #8b949e;
+}
+
+.login-footer a {
+    color: #58a6ff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+
+/* --- Dashboard Body & Layout Styles --- */
 body.dashboard-body {
     background-color: #07090e;
     color: #e6edf3;
@@ -53,7 +133,7 @@ body.dashboard-body {
     color: #58a6ff;
 }
 
-/* Layout Container */
+/* Dashboard Container */
 .dashboard-container {
     display: flex;
     flex: 1;
@@ -181,9 +261,9 @@ body.dashboard-body {
     border-radius: 12px;
     border: 1px solid #30363d;
     display: flex;
-    flex-direction: column;
     flex: 1;
-    min-height: 0; /* बहुत ज़रूरी है ताकि ओवरफ्लो न हो */
+    flex-direction: column;
+    min-height: 0;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
@@ -225,7 +305,7 @@ body.dashboard-body {
     background: #090d12;
     border-top: 1px solid #21262d;
     gap: 8px;
-    flex-shrink: 0; /* इनपुट बॉक्स को दबने से रोकता है */
+    flex-shrink: 0;
 }
 
 .chat-input-container input {
