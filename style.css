@@ -2,7 +2,7 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
-    background-color: #0d1117; /* Dark background */
+    background-color: #0d1117;
     color: white;
     padding: 20px;
     margin: 0;
@@ -44,9 +44,9 @@ body {
     font-size: 16px;
     font-weight: bold;
     border-radius: 50px;
-    border: 2px solid #33ffd8; /* Glowing border */
+    border: 2px solid #33ffd8;
     cursor: pointer;
-    box-shadow: 0 0 15px #33ffd8; /* Glowing effect */
+    box-shadow: 0 0 15px #33ffd8;
     transition: box-shadow 0.3s ease;
 }
 
@@ -64,6 +64,7 @@ body {
     color: #58a6ff;
     text-decoration: none;
 }
+
 /* Dashboard Layout Styles */
 .dashboard-body {
     margin: 0;
@@ -76,7 +77,6 @@ body {
     overflow: hidden;
 }
 
-/* Top Header (Hammer / Navbar) */
 .top-header {
     height: 60px;
     background-color: #161b22;
@@ -106,7 +106,6 @@ body {
     color: #58a6ff;
 }
 
-/* Dashboard Container & Sidebar */
 .dashboard-container {
     display: flex;
     margin-top: 60px;
@@ -125,7 +124,6 @@ body {
     z-index: 999;
 }
 
-/* Profile Box at Top of Sidebar */
 .profile-box {
     display: flex;
     align-items: center;
@@ -158,7 +156,6 @@ body {
     color: #8b949e;
 }
 
-/* Sidebar Menu */
 .sidebar-menu {
     flex-grow: 1;
     padding: 15px 0;
@@ -180,7 +177,6 @@ body {
     color: #58a6ff;
 }
 
-/* Sidebar Bottom (Switch Channel & Logout) */
 .sidebar-bottom {
     padding: 15px;
     border-top: 1px solid #30363d;
@@ -219,7 +215,6 @@ body {
     background-color: #b62324;
 }
 
-/* Main Content */
 .main-content {
     flex-grow: 1;
     padding: 30px;
@@ -227,12 +222,16 @@ body {
     background-color: #0d1117;
 }
 
-/* Responsive for Mobile */
 @media (max-width: 768px) {
     .sidebar {
-        position: absolute;
-        height: 100%;
+        position: fixed;
+        top: 60px;
+        left: 0;
+        width: 260px;
+        height: calc(100vh - 60px);
         transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.5);
     }
     .sidebar.active {
         transform: translateX(0);
