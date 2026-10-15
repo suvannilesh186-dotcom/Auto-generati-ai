@@ -9,19 +9,61 @@
 <body>
     <div class="login-container">
         <div class="logo">AGC.AI</div>
-        <div class="login-message">
-            <h2>Welcome to AGC.AI Dashboard.</h2>
-            <p>Apne dashboard tak pahunchne ke liye kripya sign in karein.</p>
-        </div>
-        <div class="connect-message">
-            <p>Connecting your YouTube channel is required for dashboard access.</p>
-        </div>
-        <button class="signin-button" onclick="handleLoginDirect()">Sign in with Gmail & Connect YouTube</button>
+        <div class="login-message">Welcome to AGC.AI Automation</div>
+        <div class="connect-message">Connect with your Google account to continue</div>
+        
+        <button class="signin-button" onclick="handleLoginDirect()">Sign in with Google</button>
+        
         <div class="footer">
-            <a href="terms.html">Terms of Service</a> | <a href="privacy.html">Privacy Policy</a>
+            Powered by <a href="#">AGC.AI</a>
         </div>
     </div>
 
-    <script type="module" src="JavaScript.js"></script>
+    <!-- Firebase Login Logic Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { CONFIG } from './config.js';
+
+        let app, auth, googleProvider;
+
+        try {
+            const firebaseConfig = {
+                apiKey: CONFIG.firebaseApiKey,
+                authDomain: CONFIG.authDomain,
+                projectId: CONFIG.projectId,
+                storageBucket: CONFIG.storageBucket,
+                messagingSenderId: CONFIG.messagingSenderId,
+                appId: CONFIG.appId,
+                measurementId: CONFIG.measurementId
+            };
+
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            googleProvider = new GoogleAuthProvider();
+        } catch (e) {
+            console.error("Firebase Init Error:", e);
+        }
+
+        window.handleLoginDirect = async function() {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const credential = GoogleAuthProvider.credentialFromResult(result);
+                if (credential) {
+                    const accessToken = credential.accessToken;
+                    localStorage.setItem('agc_access_token', accessToken);
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (error) {
+                console.warn("Popup failed, trying redirect...", error);
+                try {
+                    await signInWithRedirect(auth, googleProvider);
+                } catch (redirectError) {
+                    console.error("Redirect Login Error:", redirectError);
+                    alert("Login Failed: " + redirectError.message);
+                }
+            }
+        };
+    </script>
 </body>
 </html>
