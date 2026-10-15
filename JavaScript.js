@@ -1,4 +1,7 @@
-// Firebase & Dashboard Logic Script (Including AI Chat Box)
+// ==========================================
+// AGC.AI Dashboard & Chat JavaScript Logic
+// ==========================================
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { CONFIG } from './config.js';
@@ -88,17 +91,17 @@ if (switchBtn) {
     });
 }
 
-// AI Chat Box Logic
+// AI Chat Box Bottom Fixed Logic & Auto Scroll
 const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
 const sendChatBtn = document.getElementById('sendChatBtn');
 
-if (sendChatBtn && chatInput) {
+if (sendChatBtn && chatInput && chatMessages) {
     const handleSendMessage = () => {
         const text = chatInput.value.trim();
         if (!text) return;
 
-        // यूजर का मैसेज स्क्रीन पर जोड़ें
+        // यूजर का मैसेज जोड़ें
         const userMsg = document.createElement('div');
         userMsg.className = 'message user-message';
         userMsg.innerText = text;
@@ -107,7 +110,7 @@ if (sendChatBtn && chatInput) {
         chatInput.value = '';
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        // अस्थायी एआई रिप्लाई (यहाँ आप अपनी OpenAI या AI API जोड़ सकते हैं)
+        // एआई रिप्लाई सिमुलेशन
         setTimeout(() => {
             const aiMsg = document.createElement('div');
             aiMsg.className = 'message ai-message';

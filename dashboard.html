@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AGC.AI - Dashboard</title>
+    <title>AGC.AI - Ultimate Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="dashboard-body">
 
     <!-- Top Header -->
     <header class="top-header">
-        <button class="menu-toggle-btn" id="menuToggleBtn">☰</button>
-        <div class="header-logo">AGC.AI Dashboard</div>
+        <button class="menu-toggle-btn" id="menuToggleBtn">⚡</button>
+        <div class="header-logo">AGC<span>.AI</span> CORE</div>
     </header>
 
     <div class="dashboard-container">
@@ -20,31 +20,32 @@
             <div class="profile-box">
                 <img id="channel-logo" src="https://via.placeholder.com/50" alt="Channel Logo" class="profile-logo">
                 <div class="profile-info">
-                    <h4 id="channel-name">Loading Channel...</h4>
-                    <span id="user-email">user@gmail.com</span>
+                    <h4 id="channel-name">Loading Profile...</h4>
+                    <span id="user-email">connecting...</span>
                 </div>
             </div>
 
             <div class="sidebar-bottom">
                 <button class="switch-channel-btn" id="switchChannelBtn">🔄 Switch Channel</button>
-                <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
+                <button class="logout-btn" id="logoutBtn">🚀 Disconnect</button>
             </div>
         </aside>
 
-        <!-- Main Content Area -->
+        <!-- Main Content Area with Bottom Chat Box -->
         <main class="main-content">
-            <h1>Welcome to AGC.AI!</h1>
-            <p>यहाँ आपका मुख्य डैशबोर्ड कंटेंट दिखाई देगा।</p>
+            <div class="welcome-area">
+                <h1>Welcome back, Commander!</h1>
+                <p>AGC.AI Automation System is fully operational and ready.</p>
+            </div>
 
-            <!-- AI Chat Box Section -->
+            <!-- AI Chat Box Section (Pinned to Bottom) -->
             <div class="ai-chat-section">
-                <div class="chat-header">🤖 AGC.AI Assistant</div>
                 <div class="chat-messages" id="chatMessages">
-                    <div class="message ai-message">नमस्ते! मैं आपकी AI मदद के लिए तैयार हूँ। बताइए आज क्या करना है?</div>
+                    <div class="message ai-message">⚡ सिस्टम ऑनलाइन है। बताइए आज कौन सा ऑटोमेशन या कंटेंट तैयार करना है?</div>
                 </div>
                 <div class="chat-input-container">
-                    <input type="text" id="chatInput" placeholder="यहाँ अपना मैसेज टाइप करें..." />
-                    <button id="sendChatBtn">🚀 Send</button>
+                    <input type="text" id="chatInput" placeholder="यहाँ अपना कमांड या मैसेज टाइप करें..." />
+                    <button id="sendChatBtn">🔥</button>
                 </div>
             </div>
         </main>
@@ -144,7 +145,7 @@
         const chatInput = document.getElementById('chatInput');
         const sendChatBtn = document.getElementById('sendChatBtn');
 
-        if (sendChatBtn && chatInput) {
+        if (sendChatBtn && chatInput && chatMessages) {
             const handleSendMessage = () => {
                 const text = chatInput.value.trim();
                 if (!text) return;
@@ -160,7 +161,7 @@
                 setTimeout(() => {
                     const aiMsg = document.createElement('div');
                     aiMsg.className = 'message ai-message';
-                    aiMsg.innerText = "मैंने आपका सवाल सुन लिया है। जल्द ही इसे AI API से कनेक्ट किया जाएगा!";
+                    aiMsg.innerText = "⚡ कमांड मिल गया है! बहुत जल्द इसे बैकएंड AI मॉडल से जोड़ा जाएगा।";
                     chatMessages.appendChild(aiMsg);
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                 }, 1000);
