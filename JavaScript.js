@@ -1,5 +1,5 @@
 // ==========================================
-// AGC.AI Dashboard & Chat JavaScript Logic (Popup Fix)
+// AGC.AI Dashboard & Chat JavaScript Logic (OpenAI Integrated)
 // ==========================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -113,7 +113,7 @@ if (menuToggleBtn && sidebar) {
     });
 }
 
-// डायरेक्ट पॉपअप लॉगिन फंक्शन (जो क्लिक करते ही तुरंत टोकन और डेटा कैप्चर करेगा)
+// डायरेक्ट पॉपअप लॉगिन फंक्शन
 const handleYouTubePopupLogin = async () => {
     try {
         const provider = new GoogleAuthProvider();
@@ -126,7 +126,7 @@ const handleYouTubePopupLogin = async () => {
         if (credential && credential.accessToken) {
             localStorage.setItem('agc_access_token', credential.accessToken);
             fetchYouTubeChannelData(credential.accessToken);
-            window.location.reload(); // पेज रिफ्रेश होकर सब लोड कर देगा
+            window.location.reload();
         }
     } catch (error) {
         console.error("Popup Login Error:", error);
@@ -143,16 +143,17 @@ if (loginBtn) {
     loginBtn.addEventListener('click', handleYouTubePopupLogin);
 }
 
-// AI Chat Box Logic
+// AI Chat Box Logic (Connected with OpenAI API via LocalStorage)
 const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
 const sendChatBtn = document.getElementById('sendChatBtn');
 
 if (sendChatBtn && chatInput && chatMessages) {
-    const handleSendMessage = () => {
+    const handleSendMessage = async () => {
         const text = chatInput.value.trim();
         if (!text) return;
 
+        // यूजर का मैसेज स्क्रीन पर जोड़ें
         const userMsg = document.createElement('div');
         userMsg.className = 'message user-message';
         userMsg.innerText = text;
@@ -161,13 +162,70 @@ if (sendChatBtn && chatInput && chatMessages) {
         chatInput.value = '';
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        setTimeout(() => {
-            const aiMsg = document.createElement('div');
-            aiMsg.className = 'message ai-message';
-            aiMsg.innerText = "मैंने आपका सवाल सुन लिया है। जल्द ही इसे AI API से कनेक्ट किया जाएगा!";
-            chatMessages.appendChild(aiMsg);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }, 1000);
+        // लोकल स्टोरेज से ओपनएआई की चेक करें
+        let openAiKey = localStorage.getItem('openai_api_key');
+        
+        if (!openAiKey) {
+            openAiKey = prompt("कृपया अपनी OpenAI API Key दर्ज करें (यह आपके ब्राउज़र में सुरक्षित रहेगी):");
+            if (openAiKey) {
+                localStorage.setItem('openai_api_key', openAiKey.trim());
+            } else {
+                const cancelMsg = document.createElement('div');
+                cancelMsg.className = 'message ai-message';
+                cancelMsg.innerText = "⚠️ AI API Key न मिलने के कारण चैट प्रोसेस नहीं हो सकी।";
+                chatMessages.appendChild(cancelMsg);
+                return;
+            }
+        }
+
+        // "सोच रहा हूँ..." इंडिकेटर दिखाएं
+        const loadingMsg = document.createElement('div');
+        loadingMsg.className = 'message ai-message';
+        loadingMsg.innerText = "⚡ AGC.AI सोच रहा हूँ...";
+        chatMessages.appendChild(loadingMsg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('openai_api_key')}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-4o-mini",
+                    messages: [
+                        { role: "system", content: "You are AGC.AI, an advanced automation and assistant core." },
+                        { role: "user", content: text }
+                    ],
+                    max_tokens: 500
+                })
+            });
+
+            const data = await response.json();
+            chatMessages.removeChild(loadingMsg);
+
+            if (data.choices && data.choices.length > 0) {
+                const aiReply = data.choices[0].message.content;
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'message ai-message';
+                aiMsg.innerText = aiReply;
+                chatMessages.appendChild(aiMsg);
+            } else if (data.error) {
+                throw new Error(data.error.message || "OpenAI API Error");
+            } else {
+                throw new Error("Invalid response from OpenAI");
+            }
+        } catch (error) {
+            console.error("AI Error:", error);
+            chatMessages.removeChild(loadingMsg);
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'message ai-message';
+            errorMsg.innerText = `❌ एरर: ${error.message}`;
+            chatMessages.appendChild(errorMsg);
+        }
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     };
 
     sendChatBtn.addEventListener('click', handleSendMessage);
