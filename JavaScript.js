@@ -113,33 +113,41 @@ if (menuToggleBtn && sidebar) {
     });
 }
 
-// स्विच चैनल लॉजिक (YouTube Readonly Scope के साथ)
-const switchBtn = document.getElementById('switchChannelBtn');
-if (switchBtn) {
-    switchBtn.addEventListener('click', async () => {
+// स्विच चैनल या लॉगिन लॉजिक (YouTube Readonly Scope के साथ)
+const handleYouTubeLogin = async () => {
+    try {
+        const provider = new GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/youtube.readonly');
+        provider.setCustomParameters({ prompt: 'select_account' });
+        
+        const result = await signInWithPopup(auth, provider);
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        if (credential && credential.accessToken) {
+            localStorage.setItem('agc_access_token', credential.accessToken);
+            window.location.reload();
+        }
+    } catch (error) {
+        console.warn("Popup failed, trying redirect...", error);
         try {
             const provider = new GoogleAuthProvider();
             provider.addScope('https://www.googleapis.com/auth/youtube.readonly');
             provider.setCustomParameters({ prompt: 'select_account' });
-            
-            const result = await signInWithPopup(auth, provider);
-            const credential = GoogleAuthProvider.credentialFromResult(result);
-            if (credential && credential.accessToken) {
-                localStorage.setItem('agc_access_token', credential.accessToken);
-                window.location.reload();
-            }
-        } catch (error) {
-            console.warn("Popup failed, trying redirect...", error);
-            try {
-                const provider = new GoogleAuthProvider();
-                provider.addScope('https://www.googleapis.com/auth/youtube.readonly');
-                provider.setCustomParameters({ prompt: 'select_account' });
-                await signInWithRedirect(auth, provider);
-            } catch (redirectError) {
-                console.error("Switch Channel Redirect Error:", redirectError);
-            }
+            await signInWithRedirect(auth, provider);
+        } catch (redirectError) {
+            console.error("Redirect Error:", redirectError);
         }
-    });
+    }
+};
+
+const switchBtn = document.getElementById('switchChannelBtn');
+if (switchBtn) {
+    switchBtn.addEventListener('click', handleYouTubeLogin);
+}
+
+// अगर इंडेक्स या लॉगिन पेज पर भी बटन हो
+const loginBtn = document.getElementById('loginBtn');
+if (loginBtn) {
+    loginBtn.addEventListener('click', handleYouTubeLogin);
 }
 
 // AI Chat Box Bottom Fixed Logic & Auto Scroll
@@ -172,7 +180,7 @@ if (sendChatBtn && chatInput && chatMessages) {
     };
 
     sendChatBtn.addEventListener('click', handleSendMessage);
-    chatInput.addEventListener('keypress', (e) => {
+    chatInput.getElementById?.('keypress') || chatInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             handleSendMessage();
         }
