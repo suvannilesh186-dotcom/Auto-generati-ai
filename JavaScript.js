@@ -1,5 +1,5 @@
 // ==========================================
-// AGC.AI Dashboard & Chat JavaScript Logic
+// AGC.AI Dashboard & Chat JavaScript Logic (Fixed)
 // ==========================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -64,13 +64,15 @@ try {
     const app = initializeApp(firebaseConfig);
     auth = getAuth(app);
 
-    // रीडायरेक्ट के बाद लॉगिन रिजल्ट हैंडल करना
+    // 1. रीडायरेक्ट के बाद यहाँ सही तरीके से टोकन कैप्चर किया जाएगा
     getRedirectResult(auth)
         .then((result) => {
             if (result) {
                 const credential = GoogleAuthProvider.credentialFromResult(result);
                 if (credential && credential.accessToken) {
                     localStorage.setItem('agc_access_token', credential.accessToken);
+                    // टोकन मिलते ही तुरंत डेटा फेच करें
+                    fetchYouTubeChannelData(credential.accessToken);
                 }
             }
         })
@@ -94,7 +96,6 @@ try {
                 fetchYouTubeChannelData(token);
             }
         } else {
-            // अगर यूजर लॉगिन नहीं है, तो उसे इंडेक्स पेज पर भेजें
             if (!window.location.href.includes('index.html')) {
                 window.location.href = 'index.html';
             }
@@ -128,7 +129,7 @@ if (menuToggleBtn && sidebar) {
     });
 }
 
-// स्विच चैनल या लॉगिन लॉजिक (Redirect Method का उपयोग जो मोबाइल पर 100% काम करता है)
+// 2. फिक्स किया गया लॉगिन/स्विच चैनल लॉजिक (जिसमें YouTube Readonly Scope पक्का जुड़ा है)
 const handleYouTubeRedirectLogin = async () => {
     try {
         const provider = new GoogleAuthProvider();
