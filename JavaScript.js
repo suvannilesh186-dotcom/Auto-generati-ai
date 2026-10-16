@@ -1,9 +1,9 @@
 // ==========================================
-// AGC.AI Dashboard & Chat JavaScript Logic (Fixed)
+// AGC.AI Dashboard & Chat JavaScript Logic (Popup Fix)
 // ==========================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { CONFIG } from './config.js';
 
 let auth;
@@ -64,22 +64,6 @@ try {
     const app = initializeApp(firebaseConfig);
     auth = getAuth(app);
 
-    // 1. रीडायरेक्ट के बाद यहाँ सही तरीके से टोकन कैप्चर किया जाएगा
-    getRedirectResult(auth)
-        .then((result) => {
-            if (result) {
-                const credential = GoogleAuthProvider.credentialFromResult(result);
-                if (credential && credential.accessToken) {
-                    localStorage.setItem('agc_access_token', credential.accessToken);
-                    // टोकन मिलते ही तुरंत डेटा फेच करें
-                    fetchYouTubeChannelData(credential.accessToken);
-                }
-            }
-        })
-        .catch((error) => {
-            console.error("Redirect Login Error:", error);
-        });
-
     // यूजर लॉगिन स्टेट चेक करना
     onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -129,26 +113,34 @@ if (menuToggleBtn && sidebar) {
     });
 }
 
-// 2. फिक्स किया गया लॉगिन/स्विच चैनल लॉजिक (जिसमें YouTube Readonly Scope पक्का जुड़ा है)
-const handleYouTubeRedirectLogin = async () => {
+// डायरेक्ट पॉपअप लॉगिन फंक्शन (जो क्लिक करते ही तुरंत टोकन और डेटा कैप्चर करेगा)
+const handleYouTubePopupLogin = async () => {
     try {
         const provider = new GoogleAuthProvider();
         provider.addScope('https://www.googleapis.com/auth/youtube.readonly');
         provider.setCustomParameters({ prompt: 'select_account' });
-        await signInWithRedirect(auth, provider);
+        
+        const result = await signInWithPopup(auth, provider);
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        
+        if (credential && credential.accessToken) {
+            localStorage.setItem('agc_access_token', credential.accessToken);
+            fetchYouTubeChannelData(credential.accessToken);
+            window.location.reload(); // पेज रिफ्रेश होकर सब लोड कर देगा
+        }
     } catch (error) {
-        console.error("Redirect Error:", error);
+        console.error("Popup Login Error:", error);
     }
 };
 
 const switchBtn = document.getElementById('switchChannelBtn');
 if (switchBtn) {
-    switchBtn.addEventListener('click', handleYouTubeRedirectLogin);
+    switchBtn.addEventListener('click', handleYouTubePopupLogin);
 }
 
 const loginBtn = document.getElementById('loginBtn');
 if (loginBtn) {
-    loginBtn.addEventListener('click', handleYouTubeRedirectLogin);
+    loginBtn.addEventListener('click', handleYouTubePopupLogin);
 }
 
 // AI Chat Box Logic
