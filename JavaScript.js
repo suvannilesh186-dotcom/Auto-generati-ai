@@ -3,7 +3,7 @@
 // ==========================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { CONFIG } from './config.js';
 
 let auth;
@@ -30,7 +30,6 @@ async function fetchYouTubeChannelData(accessToken) {
             if (nameElem) nameElem.innerText = channelName;
             if (logoElem) logoElem.src = channelLogo;
 
-            // सब्सक्राइबर दिखाने के लिए प्रोफाइल इंफो बॉक्स में डायनामिक स्पैन जोड़ना
             const profileInfo = document.querySelector('.profile-info');
             if (profileInfo) {
                 let subSpan = document.getElementById('subCount');
@@ -65,6 +64,20 @@ try {
     const app = initializeApp(firebaseConfig);
     auth = getAuth(app);
 
+    // रीडायरेक्ट के बाद लॉगिन रिजल्ट हैंडल करना
+    getRedirectResult(auth)
+        .then((result) => {
+            if (result) {
+                const credential = GoogleAuthProvider.credentialFromResult(result);
+                if (credential && credential.accessToken) {
+                    localStorage.setItem('agc_access_token', credential.accessToken);
+                }
+            }
+        })
+        .catch((error) => {
+            console.error("Redirect Login Error:", error);
+        });
+
     // यूजर लॉगिन स्टेट चेक करना
     onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -76,13 +89,15 @@ try {
             if (nameElem && user.displayName) nameElem.innerText = user.displayName;
             if (logoElem && user.photoURL) logoElem.src = user.photoURL;
 
-            // अगर लोकल स्टोरेज में यूट्यूब एक्सेस टोकन है, तो चैनल डेटा फेच करें
             const token = localStorage.getItem('agc_access_token');
             if (token) {
                 fetchYouTubeChannelData(token);
             }
         } else {
-            window.location.href = 'index.html';
+            // अगर यूजर लॉगिन नहीं है, तो उसे इंडेक्स पेज पर भेजें
+            if (!window.location.href.includes('index.html')) {
+                window.location.href = 'index.html';
+            }
         }
     });
 
@@ -113,44 +128,29 @@ if (menuToggleBtn && sidebar) {
     });
 }
 
-// स्विच चैनल या लॉगिन लॉजिक (YouTube Readonly Scope के साथ)
-const handleYouTubeLogin = async () => {
+// स्विच चैनल या लॉगिन लॉजिक (Redirect Method का उपयोग जो मोबाइल पर 100% काम करता है)
+const handleYouTubeRedirectLogin = async () => {
     try {
         const provider = new GoogleAuthProvider();
         provider.addScope('https://www.googleapis.com/auth/youtube.readonly');
         provider.setCustomParameters({ prompt: 'select_account' });
-        
-        const result = await signInWithPopup(auth, provider);
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        if (credential && credential.accessToken) {
-            localStorage.setItem('agc_access_token', credential.accessToken);
-            window.location.reload();
-        }
+        await signInWithRedirect(auth, provider);
     } catch (error) {
-        console.warn("Popup failed, trying redirect...", error);
-        try {
-            const provider = new GoogleAuthProvider();
-            provider.addScope('https://www.googleapis.com/auth/youtube.readonly');
-            provider.setCustomParameters({ prompt: 'select_account' });
-            await signInWithRedirect(auth, provider);
-        } catch (redirectError) {
-            console.error("Redirect Error:", redirectError);
-        }
+        console.error("Redirect Error:", error);
     }
 };
 
 const switchBtn = document.getElementById('switchChannelBtn');
 if (switchBtn) {
-    switchBtn.addEventListener('click', handleYouTubeLogin);
+    switchBtn.addEventListener('click', handleYouTubeRedirectLogin);
 }
 
-// अगर इंडेक्स या लॉगिन पेज पर भी बटन हो
 const loginBtn = document.getElementById('loginBtn');
 if (loginBtn) {
-    loginBtn.addEventListener('click', handleYouTubeLogin);
+    loginBtn.addEventListener('click', handleYouTubeRedirectLogin);
 }
 
-// AI Chat Box Bottom Fixed Logic & Auto Scroll
+// AI Chat Box Logic
 const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
 const sendChatBtn = document.getElementById('sendChatBtn');
@@ -160,7 +160,6 @@ if (sendChatBtn && chatInput && chatMessages) {
         const text = chatInput.value.trim();
         if (!text) return;
 
-        // यूजर का मैसेज जोड़ें
         const userMsg = document.createElement('div');
         userMsg.className = 'message user-message';
         userMsg.innerText = text;
@@ -169,7 +168,6 @@ if (sendChatBtn && chatInput && chatMessages) {
         chatInput.value = '';
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        // एआई रिप्लाई सिमुलेशन
         setTimeout(() => {
             const aiMsg = document.createElement('div');
             aiMsg.className = 'message ai-message';
@@ -180,7 +178,7 @@ if (sendChatBtn && chatInput && chatMessages) {
     };
 
     sendChatBtn.addEventListener('click', handleSendMessage);
-    chatInput.getElementById?.('keypress') || chatInput.addEventListener('keypress', (e) => {
+    chatInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             handleSendMessage();
         }
