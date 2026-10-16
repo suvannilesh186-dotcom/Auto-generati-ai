@@ -59,6 +59,48 @@
 
         let auth;
 
+        // YouTube Channel Data Fetching Function
+        async function fetchYouTubeChannelData(accessToken) {
+            try {
+                const response = await fetch('https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&mine=true', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.items && data.items.length > 0) {
+                    const channel = data.items[0];
+                    const channelName = channel.snippet.title;
+                    const channelLogo = channel.snippet.thumbnails.default.url;
+                    const subscriberCount = channel.statistics.subscriberCount;
+
+                    const nameElem = document.getElementById('channel-name');
+                    const logoElem = document.getElementById('channel-logo');
+
+                    if (nameElem) nameElem.innerText = channelName;
+                    if (logoElem) logoElem.src = channelLogo;
+
+                    const profileInfo = document.querySelector('.profile-info');
+                    if (profileInfo) {
+                        let subSpan = document.getElementById('subCount');
+                        if (!subSpan) {
+                            subSpan = document.createElement('span');
+                            subSpan.id = 'subCount';
+                            subSpan.style.display = 'block';
+                            subSpan.style.fontSize = '11px';
+                            subSpan.style.color = '#58a6ff';
+                            subSpan.style.marginTop = '2px';
+                            profileInfo.appendChild(subSpan);
+                        }
+                        subSpan.innerText = `Subscribers: ${subscriberCount}`;
+                    }
+                }
+            } catch (error) {
+                console.error("YouTube API Error:", error);
+            }
+        }
+
         try {
             const firebaseConfig = {
                 apiKey: CONFIG.firebaseApiKey,
@@ -82,6 +124,12 @@
                     if (emailElem) emailElem.innerText = user.email || "Connected User";
                     if (nameElem && user.displayName) nameElem.innerText = user.displayName;
                     if (logoElem && user.photoURL) logoElem.src = user.photoURL;
+
+                    // लोकल स्टोरेज से टोकन लेकर यूट्यूब डेटा फेच करें
+                    const token = localStorage.getItem('agc_access_token');
+                    if (token) {
+                        fetchYouTubeChannelData(token);
+                    }
                 } else {
                     window.location.href = 'index.html';
                 }
@@ -113,12 +161,13 @@
             });
         }
 
-        // Switch Channel Logic
+        // Switch Channel Logic with YouTube Readonly Scope
         const switchBtn = document.getElementById('switchChannelBtn');
         if (switchBtn) {
             switchBtn.addEventListener('click', async () => {
                 try {
                     const provider = new GoogleAuthProvider();
+                    provider.addScope('https://www.googleapis.com/auth/youtube.readonly');
                     provider.setCustomParameters({ prompt: 'select_account' });
                     
                     const result = await signInWithPopup(auth, provider);
@@ -131,6 +180,7 @@
                     console.warn("Popup failed, trying redirect...", error);
                     try {
                         const provider = new GoogleAuthProvider();
+                        provider.addScope('https://www.googleapis.com/auth/youtube.readonly');
                         provider.setCustomParameters({ prompt: 'select_account' });
                         await signInWithRedirect(auth, provider);
                     } catch (redirectError) {
