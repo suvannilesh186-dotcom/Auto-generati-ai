@@ -103,7 +103,7 @@ try {
     console.error("Firebase Setup Error:", err);
 }
 
-// साइडबार टॉगल लॉजिक
+// साइडबार टॉगल लॉजिक (हैमर बटन ⚡)
 const menuToggleBtn = document.getElementById('menuToggleBtn');
 const sidebar = document.getElementById('sidebar');
 
@@ -186,4 +186,54 @@ if (sendChatBtn && chatInput && chatMessages) {
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
         try {
-            const response = awaithttp://api.openai.com/v1/chat/completions; // wait, fetch URL correct below
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('openai_api_key')}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-4o-mini",
+                    messages: [
+                        { role: "system", content: "You are AGC.AI, an advanced automation and assistant core." },
+                        { role: "user", content: text }
+                    ],
+                    max_tokens: 500
+                })
+            });
+
+            const data = await response.json();
+            chatMessages.removeChild(loadingMsg);
+
+            if (data.choices && data.choices.length > 0) {
+                const aiReply = data.choices[0].message.content;
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'message ai-message';
+                aiMsg.innerText = aiReply;
+                chatMessages.appendChild(aiMsg);
+            } else if (data.error) {
+                throw new Error(data.error.message || "OpenAI API Error");
+            } else {
+                throw new Error("Invalid response from OpenAI");
+            }
+        } catch (error) {
+            console.error("AI Error:", error);
+            if (chatMessages.contains(loadingMsg)) {
+                chatMessages.removeChild(loadingMsg);
+            }
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'message ai-message';
+            errorMsg.innerText = `❌ एरर: ${error.message}`;
+            chatMessages.appendChild(errorMsg);
+        }
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    };
+
+    sendChatBtn.addEventListener('click', handleSendMessage);
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleSendMessage();
+        }
+    });
+}
